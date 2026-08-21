@@ -272,7 +272,7 @@ export async function handleBuild(argv) {
             // Remove ESM exports before bundling inline scripts as plain text.
             // Some inline scripts keep named exports for local tests/utilities.
             text = text.replace(/\bexport\s+default\b/g, "")
-            text = text.replace(/\bexport\s*\{[\s\S]*?\}\s*;?\s*$/m, "")
+            text = text.replace(/\bexport\s*\{[\s\S]*?\s*;?\s*$/m, "")
 
             const sourcefile = args.path
             const resolveDir = path.dirname(args.path)
@@ -355,6 +355,17 @@ export async function handleBuild(argv) {
     }
 
     await build(clientRefresh)
+    const outputDir = path.resolve(argv.output)
+    const existsInOutput = (requestPath) => {
+      const filePath = path.resolve(outputDir, requestPath.replace(/^[/\\]+/, ""))
+      const relativePath = path.relative(outputDir, filePath)
+      return (
+        relativePath !== ".." &&
+        !relativePath.startsWith(`..${path.sep}`) &&
+        !path.isAbsolute(relativePath) &&
+        fs.existsSync(filePath)
+      )
+    }
     const server = http.createServer(async (req, res) => {
       if (argv.baseDir && !req.url?.startsWith(argv.baseDir)) {
         console.log(
@@ -420,7 +431,7 @@ export async function handleBuild(argv) {
         // /trailing/
         // does /trailing/index.html exist? if so, serve it
         const indexFp = path.posix.join(fp, "index.html")
-        if (fs.existsSync(path.posix.join(argv.output, indexFp))) {
+        if (existsInOutput(indexFp)) {
           req.url = fp
           return serve()
         }
@@ -430,7 +441,7 @@ export async function handleBuild(argv) {
         if (path.extname(base) === "") {
           base += ".html"
         }
-        if (fs.existsSync(path.posix.join(argv.output, base))) {
+        if (existsInOutput(base)) {
           return redirect(fp.slice(0, -1))
         }
       } else {
@@ -440,14 +451,14 @@ export async function handleBuild(argv) {
         if (path.extname(base) === "") {
           base += ".html"
         }
-        if (fs.existsSync(path.posix.join(argv.output, base))) {
+        if (existsInOutput(base)) {
           req.url = fp
           return serve()
         }
 
         // does /regular/index.html exist? if so, redirect to /regular/
         let indexFp = path.posix.join(fp, "index.html")
-        if (fs.existsSync(path.posix.join(argv.output, indexFp))) {
+        if (existsInOutput(indexFp)) {
           return redirect(fp + "/")
         }
       }
