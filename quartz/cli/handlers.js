@@ -1,41 +1,26 @@
-import { promises } from "fs"
+import fs, { promises } from "fs"
 import path from "path"
 import esbuild from "esbuild"
 import { styleText } from "util"
 import { sassPlugin } from "esbuild-sass-plugin"
-import fs from "fs"
 import { intro, outro, select, text } from "@clack/prompts"
 import { rm } from "fs/promises"
 import chokidar from "chokidar"
 import prettyBytes from "pretty-bytes"
 import { execSync, spawnSync } from "child_process"
-import http from "http"
+import * as http from "node:http"
 import serveHandler from "serve-handler"
 import { WebSocketServer } from "ws"
 import { randomUUID } from "crypto"
 import { Mutex } from "async-mutex"
 import { CreateArgv } from "./args.js"
 import { globby } from "globby"
-import {
-  exitIfCancel,
-  escapePath,
-  gitPull,
-  popContentFolder,
-  stashContentFolder,
-} from "./helpers.js"
-import {
-  UPSTREAM_NAME,
-  QUARTZ_SOURCE_BRANCH,
-  ORIGIN_NAME,
-  version,
-  fp,
-  cacheFile,
-  cwd,
-} from "./constants.js"
+import { escapePath, exitIfCancel, gitPull, popContentFolder, stashContentFolder, } from "./helpers.js"
+import { cacheFile, cwd, fp, ORIGIN_NAME, QUARTZ_SOURCE_BRANCH, UPSTREAM_NAME, version, } from "./constants.js"
 
 /**
  * Resolve content directory path
- * @param contentPath path to resolve
+ * @param {string} contentPath path to resolve
  */
 function resolveContentPath(contentPath) {
   if (path.isAbsolute(contentPath)) return path.relative(cwd, contentPath)
@@ -265,18 +250,20 @@ export async function handleBuild(argv) {
       }),
       {
         name: "inline-script-loader",
+        /** @param {import("esbuild").PluginBuild} build */
         setup(build) {
           build.onLoad({ filter: /\.inline\.(ts|js)$/ }, async (args) => {
-            let text = await promises.readFile(args.path, "utf8")
+            let text = String(await promises.readFile(args.path, "utf8"))
 
             // Remove ESM exports before bundling inline scripts as plain text.
             // Some inline scripts keep named exports for local tests/utilities.
             text = text.replace(/\bexport\s+default\b/g, "")
-            text = text.replace(/\bexport\s*\{[\s\S]*?\s*;?\s*$/m, "")
+            text = text.replace(/\bexport\s*\{[^}]*\s*;?/g, "")
 
             const sourcefile = args.path
             const resolveDir = path.dirname(args.path)
-            const transpiled = await esbuild.build({
+            /** @type {import("esbuild").BuildOptions & { write: false }} */
+            const inlineBuildOptions = {
               stdin: {
                 contents: text,
                 loader: "ts",
@@ -288,7 +275,8 @@ export async function handleBuild(argv) {
               minify: true,
               platform: "browser",
               format: "esm",
-            })
+            }
+            const transpiled = await esbuild.build(inlineBuildOptions)
             const rawMod = transpiled.outputFiles[0].text
             return {
               contents: rawMod,
@@ -302,7 +290,9 @@ export async function handleBuild(argv) {
 
   const buildMutex = new Mutex()
   let lastBuildMs = 0
+  /** @type {null | undefined | (() => Promise<void>)} */
   let cleanupBuild = null
+  /** @param {() => void} clientRefresh */
   const build = async (clientRefresh) => {
     const buildStart = new Date().getTime()
     lastBuildMs = buildStart
@@ -319,8 +309,8 @@ export async function handleBuild(argv) {
 
     const result = await ctx.rebuild().catch((err) => {
       console.error(`${styleText("red", "Couldn't parse Quartz configuration:")} ${fp}`)
-      const reason = err instanceof Error ? err.stack ?? err.message : String(err)
-      console.log(`Reason: ${styleText("grey", reason)}`)
+      const reason = err instanceof Error ? (err.stack ?? err.message) : String(err)
+      console.log(`Reason: ${styleText("gray", reason)}`)
       process.exit(1)
     })
     release()
@@ -345,8 +335,10 @@ export async function handleBuild(argv) {
     clientRefresh()
   }
 
+  /** @type {() => void} */
   let clientRefresh = () => {}
   if (argv.serve) {
+    /** @type {import("ws").WebSocket[]} */
     const connections = []
     clientRefresh = () => connections.forEach((conn) => conn.send("rebuild"))
 
@@ -356,6 +348,7 @@ export async function handleBuild(argv) {
 
     await build(clientRefresh)
     const outputDir = path.resolve(argv.output)
+    /** @param {string} requestPath */
     const existsInOutput = (requestPath) => {
       const filePath = path.resolve(outputDir, requestPath.replace(/^[/\\]+/, ""))
       const relativePath = path.relative(outputDir, filePath)
@@ -366,7 +359,11 @@ export async function handleBuild(argv) {
         fs.existsSync(filePath)
       )
     }
-    const server = http.createServer(async (req, res) => {
+    /**
+     * @param {http.IncomingMessage} req
+     * @param {http.ServerResponse} res
+     */
+    const requestListener = async (req, res) => {
       if (argv.baseDir && !req.url?.startsWith(argv.baseDir)) {
         console.log(
           styleText(
@@ -408,10 +405,11 @@ export async function handleBuild(argv) {
           status >= 200 && status < 300
             ? styleText("green", `[${status}]`)
             : styleText("red", `[${status}]`)
-        console.log(statusString + styleText("grey", ` ${argv.baseDir}${req.url}`))
+        console.log(statusString + styleText("gray", ` ${argv.baseDir}${req.url}`))
         release()
       }
 
+      /** @param {string} newFp */
       const redirect = (newFp) => {
         newFp = argv.baseDir + newFp
         res.writeHead(302, {
@@ -419,12 +417,12 @@ export async function handleBuild(argv) {
         })
         console.log(
           styleText("yellow", "[302]") +
-            styleText("grey", ` ${argv.baseDir}${req.url} -> ${newFp}`),
+            styleText("gray", ` ${argv.baseDir}${req.url} -> ${newFp}`),
         )
         res.end()
       }
 
-      let fp = req.url?.split("?")[0] ?? "/"
+      const fp = req.url?.split("?")[0] ?? "/"
 
       // handle redirects
       if (fp.endsWith("/")) {
@@ -457,14 +455,15 @@ export async function handleBuild(argv) {
         }
 
         // does /regular/index.html exist? if so, redirect to /regular/
-        let indexFp = path.posix.join(fp, "index.html")
+        const indexFp = path.posix.join(fp, "index.html")
         if (existsInOutput(indexFp)) {
           return redirect(fp + "/")
         }
       }
 
       return serve()
-    })
+    }
+    const server = http.createServer(requestListener)
 
     server.listen(argv.port)
     const wss = new WebSocketServer({ port: argv.wsPort })
@@ -477,7 +476,7 @@ export async function handleBuild(argv) {
     )
   } else {
     await build(clientRefresh)
-    ctx.dispose()
+    await ctx.dispose()
   }
 
   if (argv.watch) {
@@ -495,7 +494,7 @@ export async function handleBuild(argv) {
       .on("change", () => build(clientRefresh))
       .on("unlink", () => build(clientRefresh))
 
-    console.log(styleText("grey", "hint: exit with ctrl+c"))
+    console.log(styleText("gray", "hint: exit with ctrl+c"))
   }
 }
 
@@ -538,6 +537,7 @@ export async function handleUpdate(argv) {
   See: https://nodejs.org/api/child_process.html#spawning-bat-and-cmd-files-on-windows
   */
 
+  /** @type {import("child_process").SpawnSyncOptions} */
   const opts = { stdio: "inherit" }
   if (process.platform === "win32") {
     opts.shell = true
@@ -585,10 +585,10 @@ export async function handleSync(argv) {
       })
     }
 
-    const currentTimestamp = new Date().toLocaleString("en-US", {
+    const currentTimestamp = new Intl.DateTimeFormat("en-US", {
       dateStyle: "medium",
       timeStyle: "short",
-    })
+    }).format(new Date())
     const commitMessage = argv.message ?? `Quartz sync: ${currentTimestamp}`
     spawnSync("git", ["add", "."], { stdio: "inherit" })
     spawnSync("git", ["commit", "-m", commitMessage], { stdio: "inherit" })
