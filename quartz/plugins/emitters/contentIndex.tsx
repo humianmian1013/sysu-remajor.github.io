@@ -2,7 +2,7 @@ import { Root } from "hast"
 import { GlobalConfiguration } from "../../cfg"
 import { getDate } from "../../components/Date"
 import { escapeHTML } from "../../util/escape"
-import { FilePath, FullSlug, SimpleSlug, joinSegments, simplifySlug } from "../../util/path"
+import { FilePath, FullSlug, joinSegments, SimpleSlug, simplifySlug } from "../../util/path"
 import { QuartzEmitterPlugin } from "../types"
 import { toHtml } from "hast-util-to-html"
 import { write } from "./helpers"
@@ -71,7 +71,10 @@ const metadataSourceTypes = new Set<MetadataSourceType>([
   "general",
 ])
 
-function readFrontmatterString(frontmatter: FrontmatterLike | undefined, key: string): string | undefined {
+function readFrontmatterString(
+  frontmatter: FrontmatterLike | undefined,
+  key: string,
+): string | undefined {
   const value = frontmatter?.[key]
   if (typeof value !== "string") {
     return undefined
@@ -81,7 +84,10 @@ function readFrontmatterString(frontmatter: FrontmatterLike | undefined, key: st
   return normalized === "" ? undefined : normalized
 }
 
-function readFrontmatterStringArray(frontmatter: FrontmatterLike | undefined, key: string): string[] | undefined {
+function readFrontmatterStringArray(
+  frontmatter: FrontmatterLike | undefined,
+  key: string,
+): string[] | undefined {
   const value = frontmatter?.[key]
   if (!Array.isArray(value)) {
     return undefined
@@ -93,7 +99,10 @@ function readFrontmatterStringArray(frontmatter: FrontmatterLike | undefined, ke
     .filter((item) => item !== "")
 }
 
-function readFrontmatterBoolean(frontmatter: FrontmatterLike | undefined, key: string): boolean | undefined {
+function readFrontmatterBoolean(
+  frontmatter: FrontmatterLike | undefined,
+  key: string,
+): boolean | undefined {
   const value = frontmatter?.[key]
   if (typeof value === "boolean") {
     return value
@@ -114,25 +123,35 @@ function readFrontmatterBoolean(frontmatter: FrontmatterLike | undefined, key: s
 }
 
 function normalizeFrontmatterYears(rawValues: unknown[]): number[] {
-  return [...new Set(
-    rawValues.flatMap((value) => {
-      if (typeof value === "number" && Number.isInteger(value) && value >= 1000 && value <= 9999) {
-        return [value]
-      }
-
-      if (typeof value === "string") {
-        const normalized = value.trim()
-        if (/^\d{4}$/.test(normalized)) {
-          return [Number(normalized)]
+  return [
+    ...new Set(
+      rawValues.flatMap((value) => {
+        if (
+          typeof value === "number" &&
+          Number.isInteger(value) &&
+          value >= 1000 &&
+          value <= 9999
+        ) {
+          return [value]
         }
-      }
 
-      return []
-    }),
-  )].sort((a, b) => b - a)
+        if (typeof value === "string") {
+          const normalized = value.trim()
+          if (/^\d{4}$/.test(normalized)) {
+            return [Number(normalized)]
+          }
+        }
+
+        return []
+      }),
+    ),
+  ].sort((a, b) => b - a)
 }
 
-function readFrontmatterYears(frontmatter: FrontmatterLike | undefined, key: string): number[] | undefined {
+function readFrontmatterYears(
+  frontmatter: FrontmatterLike | undefined,
+  key: string,
+): number[] | undefined {
   const value = frontmatter?.[key]
   if (typeof value === "undefined" || value === null) {
     return undefined
@@ -142,7 +161,9 @@ function readFrontmatterYears(frontmatter: FrontmatterLike | undefined, key: str
   return years.length > 0 ? years : undefined
 }
 
-export function extractContentMetadata(frontmatter: FrontmatterLike | undefined): ContentMetadata | undefined {
+export function extractContentMetadata(
+  frontmatter: FrontmatterLike | undefined,
+): ContentMetadata | undefined {
   const sourceType = readFrontmatterString(frontmatter, "sourceType")
   const metadata: ContentMetadata = {
     sourceType:
@@ -169,7 +190,7 @@ function generateSiteMap(cfg: GlobalConfiguration, idx: ContentIndexMap): string
   const urls = Array.from(idx)
     .map(([slug, content]) => createURLEntry(simplifySlug(slug), content))
     .join("")
-  return `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls}</urlset>`
+  return `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`
 }
 
 function generateRSSFeed(cfg: GlobalConfiguration, idx: ContentIndexMap, limit?: number): string {

@@ -36,7 +36,7 @@ main {
   --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
   --color-btn-text: #d4d4d4; /* --darkgray */
   --color-btn-bg: #161618; /* --light */
-  --color-btn-border: rgb(240, 246, 252 / 10%); /* --dark */
+  --color-btn-border: rgb(240 246 252 / 10%); /* --dark */
   --color-btn-shadow: 0 0 transparent;
   --color-btn-inset-shadow: 0 0 transparent;
   --color-btn-hover-bg: #30363d;
@@ -46,11 +46,11 @@ main {
   --color-btn-selected-bg: #161b22;
   --color-btn-primary-text: #fff;
   --color-btn-primary-bg: #84a59d; /* --tertiary */
-  --color-btn-primary-border: rgb(240, 246, 252 / 10%); /* --dark */
+  --color-btn-primary-border: rgb(240 246 252 / 10%); /* --dark */
   --color-btn-primary-shadow: 0 0 transparent;
   --color-btn-primary-inset-shadow: 0 0 transparent;
   --color-btn-primary-hover-bg: #7b97aa; /* --secondary */
-  --color-btn-primary-hover-border: rgb(240, 246, 252 / 10%); /* --dark */
+  --color-btn-primary-hover-border: rgb(240 246 252 / 10%); /* --dark */
   --color-btn-primary-selected-bg: #7b97aa; /* --secondary */
   --color-btn-primary-selected-shadow: 0 0 transparent;
   --color-btn-primary-disabled-text: rgba(33, 32, 32, 0.5);

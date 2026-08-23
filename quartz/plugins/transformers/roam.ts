@@ -1,9 +1,8 @@
 import { QuartzTransformerPlugin } from "../types"
 import { PluggableList } from "unified"
-import { visit } from "unist-util-visit"
-import { ReplaceFunction, findAndReplace as mdastFindReplace } from "mdast-util-find-and-replace"
-import { Root, Html, Paragraph, Text, Link, Parent } from "mdast"
-import { BuildVisitor } from "unist-util-visit"
+import { BuildVisitor, visit } from "unist-util-visit"
+import { findAndReplace as mdastFindReplace, ReplaceFunction } from "mdast-util-find-and-replace"
+import { Html, Link, Paragraph, Parent, Root, Text } from "mdast"
 
 export interface Options {
   orComponent: boolean
@@ -33,7 +32,7 @@ const orRegex = new RegExp(/{{or:(.*?)}}/, "g")
 const TODORegex = new RegExp(/{{.*?\bTODO\b.*?}}/, "g")
 const DONERegex = new RegExp(/{{.*?\bDONE\b.*?}}/, "g")
 
-const blockquoteRegex = new RegExp(/(\[\[>\]\])\s*(.*)/, "g")
+const blockquoteRegex = new RegExp(/(\[\[>]])\s*(.*)/, "g")
 const roamHighlightRegex = new RegExp(/\^\^(.+)\^\^/, "g")
 const roamItalicRegex = new RegExp(/__(.+)__/, "g")
 
@@ -52,7 +51,7 @@ function isSpecialEmbed(node: Paragraph): boolean {
 
 function transformSpecialEmbed(node: Paragraph, opts: Options): Html | null {
   const [textNode, linkNode] = node.children as [Text, Link]
-  const embedType = textNode.value.match(/\{\{\[\[(.*?)\]\]:/)?.[1]?.toLowerCase()
+  const embedType = textNode.value.match(/\{\{\[\[(.*?)]]:/)?.[1]?.toLowerCase()
   const url = linkNode.url.slice(0, -2) // Remove the trailing '}}'
 
   switch (embedType) {
@@ -75,7 +74,7 @@ function transformSpecialEmbed(node: Paragraph, opts: Options): Html | null {
       )
       if (youtubeMatch) {
         const videoId = youtubeMatch[1].split("&")[0] // Remove additional parameters
-        const playlistMatch = url.match(/[?&]list=([^#\&\?]*)/)
+        const playlistMatch = url.match(/[?&]list=([^#&?]*)/)
         const playlistId = playlistMatch ? playlistMatch[1] : null
 
         return {
@@ -85,7 +84,6 @@ function transformSpecialEmbed(node: Paragraph, opts: Options): Html | null {
             width="600px"
             height="350px"
             src="https://www.youtube.com/embed/${videoId}${playlistId ? `?list=${playlistId}` : ""}"
-            frameborder="0"
             allow="fullscreen"
           ></iframe>`,
         }

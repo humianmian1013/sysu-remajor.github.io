@@ -9,7 +9,6 @@ enableToc: true
 comments: true
 created: 2026-04-14
 modified: 2026-04-15
-published: 2026-04-15
 ---
 
 ## Matrix考试界面介绍
@@ -53,7 +52,6 @@ Matrix是计算机学院转专业考核中用于机考的OJ平台。考生们需
 如果题目中给了样例输入，那么就可以在Playground菜单的左侧粘贴这一输入后，点击测试运行，即可在右侧看到输出的结果。当然如果代码编写有误，右侧则也会展示出对应的报错信息，可以据此来Debug代码：
 
 ![Playground调试](../assert/imagesForMatrixTutorial/PlaygroundDebug.png)
-
 
 在测试完并点击提交后，我们会看到当前题目的成绩，其可能包含标准测试、随机测试、编译检查、内存检查等等检查点，检查点的项以及分数占比都不固定，会随题目不同而变化。
 

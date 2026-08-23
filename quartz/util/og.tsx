@@ -67,7 +67,7 @@ export async function getSatoriFonts(headerFont: FontSpecification, bodyFont: Fo
 
 /**
  * Get the `.ttf` file of a google font
- * @param fontName name of google font
+ * @param rawFontName name of google font
  * @param weight what font weight to fetch font
  * @returns `.ttf` file of google font
  */
@@ -95,7 +95,7 @@ export async function fetchTtf(
   const css = await cssResponse.text()
 
   // Extract .ttf url from css file
-  const urlRegex = /url\((https:\/\/fonts.gstatic.com\/s\/.*?.ttf)\)/g
+  const urlRegex = /url\((https:\/\/fonts\.gstatic\.com\/s\/.*?\.ttf)\)/g
   const match = urlRegex.exec(css)
 
   if (!match) {
@@ -222,6 +222,7 @@ export const defaultImage: SocialImageOptions["imageStructure"] = ({
         {iconBase64 && (
           <img
             src={iconBase64}
+            alt=""
             width={56}
             height={56}
             style={{

@@ -1,5 +1,5 @@
 import micromorph from "micromorph"
-import { FullSlug, RelativeURL, getFullSlug, normalizeRelativeURLs } from "../../util/path"
+import { FullSlug, getFullSlug, normalizeRelativeURLs } from "../../util/path"
 import { fetchCanonical } from "./util"
 
 // adapted from `micromorph`
@@ -102,7 +102,7 @@ async function _navigate(url: URL, isBack: boolean = false) {
   html.body.appendChild(announcer)
 
   // morph body
-  micromorph(document.body, html.body)
+  await micromorph(document.body, html.body)
 
   // scroll into place and add history
   if (!isBack) {
@@ -160,31 +160,16 @@ function createRouter() {
         return
       }
 
-      navigate(url, false)
+      await navigate(url, false)
     })
 
     window.addEventListener("popstate", (event) => {
       const { url } = getOpts(event) ?? {}
       if (window.location.hash && window.location.pathname === url?.pathname) return
-      navigate(new URL(window.location.toString()), true)
+      void navigate(new URL(window.location.toString()), true)
       return
     })
   }
-
-  return new (class Router {
-    go(pathname: RelativeURL) {
-      const url = new URL(pathname, window.location.toString())
-      return navigate(url, false)
-    }
-
-    back() {
-      return window.history.back()
-    }
-
-    forward() {
-      return window.history.forward()
-    }
-  })()
 }
 
 createRouter()
