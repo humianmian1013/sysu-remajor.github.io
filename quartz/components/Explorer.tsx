@@ -50,11 +50,6 @@ const defaultOptions: Options = {
   order: ["filter", "map", "sort"],
 }
 
-export type FolderState = {
-  path: string
-  collapsed: boolean
-}
-
 let numExplorers = 0
 export default ((userOpts?: Partial<Options>) => {
   const opts: Options = { ...defaultOptions, ...userOpts }

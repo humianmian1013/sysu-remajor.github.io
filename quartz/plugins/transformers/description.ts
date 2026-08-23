@@ -16,7 +16,7 @@ const defaultOptions: Options = {
 }
 
 const urlRegex = new RegExp(
-  /(https?:\/\/)?(?<domain>([\da-z\.-]+)\.([a-z\.]{2,6})(:\d+)?)(?<path>[\/\w\.-]*)(\?[\/\w\.=&;-]*)?/,
+  /(https?:\/\/)?(?<domain>([\da-z.-]+)\.([a-z.]{2,6})(:\d+)?)(?<path>[\/\w.-]*)(\?[\/\w.=&;-]*)?/,
   "g",
 )
 

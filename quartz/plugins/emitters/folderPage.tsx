@@ -3,16 +3,16 @@ import { QuartzComponentProps } from "../../components/types"
 import HeaderConstructor from "../../components/Header"
 import BodyConstructor from "../../components/Body"
 import { pageResources, renderPage } from "../../components/renderPage"
-import { ProcessedContent, QuartzPluginData, defaultProcessedContent } from "../vfile"
+import { defaultProcessedContent, ProcessedContent, QuartzPluginData } from "../vfile"
 import { FullPageLayout } from "../../cfg"
 import path from "path"
 import {
   FullSlug,
-  SimpleSlug,
-  stripSlashes,
   joinSegments,
   pathToRoot,
+  SimpleSlug,
   simplifySlug,
+  stripSlashes,
 } from "../../util/path"
 import { defaultListPageLayout, sharedPageComponents } from "../../../quartz.layout"
 import { FolderContent } from "../../components"
@@ -20,6 +20,7 @@ import { write } from "./helpers"
 import { i18n, TRANSLATIONS } from "../../i18n"
 import { BuildCtx } from "../../util/ctx"
 import { StaticResources } from "../../util/resources"
+
 interface FolderPageOptions extends FullPageLayout {
   sort?: (f1: QuartzPluginData, f2: QuartzPluginData) => number
 }
@@ -90,7 +91,7 @@ function computeFolderInfo(
 }
 
 function _getFolders(slug: FullSlug): SimpleSlug[] {
-  var folderName = path.dirname(slug ?? "") as SimpleSlug
+  let folderName = path.dirname(slug ?? "") as SimpleSlug
   const parentFolderNames = [folderName]
 
   while (folderName !== ".") {

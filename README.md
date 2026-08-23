@@ -6,7 +6,6 @@
 
 - 网站: [http://sysu-remajor.github.io](http://sysu-remajor.github.io)
 - 邮箱: [sysu-remajor@proton.me](mailto:sysu-remajor@proton.me)
-- 地区: China
 
 ## 仓库结构
 

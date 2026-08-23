@@ -24,8 +24,8 @@ const defaultOptions: Options = {
   replaceOrgLatex: true,
 }
 
-const relrefRegex = new RegExp(/\[([^\]]+)\]\(\{\{< relref "([^"]+)" >\}\}\)/, "g")
-const predefinedHeadingIdRegex = new RegExp(/(.*) {#(?:.*)}/, "g")
+const relrefRegex = new RegExp(/\[([^\]]+)]\(\{\{< relref "([^"]+)" >}}\)/, "g")
+const predefinedHeadingIdRegex = new RegExp(/(.*) {#.*}/, "g")
 const hugoShortcodeRegex = new RegExp(/{{(.*)}}/, "g")
 const figureTagRegex = new RegExp(/< ?figure src="(.*)" ?>/, "g")
 // \\\\\( -> matches \\(
@@ -36,7 +36,7 @@ const inlineLatexRegex = new RegExp(/\\\\\((.+?)\\\\\)/, "g")
 // ([\s\S]*?) -> Matches the block equation
 // (?:\\\\\]|\\\\\)|\\end{equation}) -> end of equation
 const blockLatexRegex = new RegExp(
-  /(?:\\begin{equation}|\\\\\(|\\\\\[)([\s\S]*?)(?:\\\\\]|\\\\\)|\\end{equation})/,
+  /(?:\\begin{equation}|\\\\\(|\\\\\[)([\s\S]*?)(?:\\\\]|\\\\\)|\\end{equation})/,
   "g",
 )
 // \$\$[\s\S]*?\$\$ -> Matches block equations

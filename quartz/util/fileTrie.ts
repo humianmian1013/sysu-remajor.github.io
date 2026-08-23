@@ -11,7 +11,7 @@ export class FileTrieNode<T extends FileTrieData = ContentDetails> {
   isFolder: boolean
   children: Array<FileTrieNode<T>>
 
-  private slugSegments: string[]
+  private readonly slugSegments: string[]
   // prefer showing the file path segment over the slug segment
   // so that folders that dont have index files can be shown as is
   // without dashes in the slug

@@ -2,10 +2,10 @@ import { QuartzEmitterPlugin } from "../types"
 import { i18n } from "../../i18n"
 import { unescapeHTML } from "../../util/escape"
 import { FullSlug, getFileExtension, isAbsoluteURL, joinSegments, QUARTZ } from "../../util/path"
-import { ImageOptions, SocialImageOptions, defaultImage, getSatoriFonts } from "../../util/og"
+import { defaultImage, getSatoriFonts, ImageOptions, SocialImageOptions } from "../../util/og"
 import sharp from "sharp"
 import satori, { SatoriOptions } from "satori"
-import { loadEmoji, getIconCode } from "../../util/emoji"
+import { getIconCode, loadEmoji } from "../../util/emoji"
 import { Readable } from "stream"
 import { write } from "./helpers"
 import { BuildCtx } from "../../util/ctx"
@@ -24,6 +24,7 @@ const defaultOptions: SocialImageOptions = {
 /**
  * Generates social image (OG/twitter standard) and saves it as `.webp` inside the public folder
  * @param opts options for generating image
+ * @param userOpts options for customizing the generated image
  */
 async function generateSocialImage(
   { cfg, description, fonts, title, fileData }: ImageOptions,

@@ -50,8 +50,7 @@ export function isAbsoluteURL(s: string): boolean {
 }
 
 export function getFullSlug(window: Window): FullSlug {
-  const res = window.document.body.dataset.slug! as FullSlug
-  return res
+  return window.document.body.dataset.slug! as FullSlug
 }
 
 function sluggify(s: string): string {
@@ -104,8 +103,7 @@ export function transformInternalLink(link: string): RelativeURL {
   const simpleSlug = simplifySlug(slugifyFilePath(fp as FilePath))
   const joined = joinSegments(stripSlashes(prefix), stripSlashes(simpleSlug))
   const trail = folderPath ? "/" : ""
-  const res = (_addRelativeToStart(joined) + trail + anchor) as RelativeURL
-  return res
+  return (_addRelativeToStart(joined) + trail + anchor) as RelativeURL
 }
 
 // from micromorph/src/utils.ts
@@ -133,9 +131,11 @@ const _rebaseHastElement = (
     if (!isRelativeURL(String(el.properties[attr]))) {
       return
     }
-
-    const rel = joinSegments(resolveRelative(curBase, newBase), "..", el.properties[attr] as string)
-    el.properties[attr] = rel
+    el.properties[attr] = joinSegments(
+      resolveRelative(curBase, newBase),
+      "..",
+      el.properties[attr] as string,
+    )
   }
 }
 
@@ -169,8 +169,7 @@ export function pathToRoot(slug: FullSlug): RelativeURL {
 }
 
 export function resolveRelative(current: FullSlug, target: FullSlug | SimpleSlug): RelativeURL {
-  const res = joinSegments(pathToRoot(current), simplifySlug(target as FullSlug)) as RelativeURL
-  return res
+  return joinSegments(pathToRoot(current), simplifySlug(target as FullSlug)) as RelativeURL
 }
 
 export function splitAnchor(link: string): [string, string] {
