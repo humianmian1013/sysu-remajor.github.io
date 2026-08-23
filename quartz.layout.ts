@@ -6,10 +6,6 @@ export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [],
   afterBody: [
-    Component.ConditionalRender({
-      component: Component.Chatbot(),
-      condition: (page) => page.fileData.slug === "chatbot",
-    }),
     Component.Comments({
       provider: "giscus",
       options: {
@@ -28,7 +24,7 @@ export const sharedPageComponents: SharedLayout = {
   footer: Component.Footer({
     links: {
       "GitHub 主页": "https://github.com/sysu-remajor",
-      "项目地址": "https://github.com/sysu-remajor/sysu-remajor.github.io",
+      项目地址: "https://github.com/sysu-remajor/sysu-remajor.github.io",
     },
   }),
 }
