@@ -23,6 +23,9 @@ description: 中山大学非官方转专业信息交流
 1. GitHub 主页：[sysu-remajor](https://github.com/sysu-remajor)
 2. 项目地址：[sysu-remajor/sysu-remajor.github.io](https://github.com/sysu-remajor/sysu-remajor.github.io)
 
+> [!warning]
+> **本站所有文档**均由热心学生自行发表维护，不代表**学校官方意志**，也不代表**100%正确**，请自行甄别！本站提供的信息均提炼自过往信息，不代表当年政策情况！第一手信息始终应以官方信息为准！
+
 ## 3 分钟上手
 
 > [!important]
@@ -89,8 +92,3 @@ description: 中山大学非官方转专业信息交流
 ## 友情链接
 
 - [华南理工生存手册](https://manual.xn--xkrsa0ti6rf4cf98d.com/) 非常有理想主义气息的人做的理想主义的事情，也是鼓舞本项目诞生的动力之一。
-
-## 关于 2026 年转专业详情
-
-- 学校官方部分信息已更新。
-- 2026 年网络空间安全学院部分信息已更新。
